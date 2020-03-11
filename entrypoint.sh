@@ -42,10 +42,14 @@ if [ -z "$tag" ]
 then
     log=$(git log --pretty=oneline)
     tag=0.0.0
-else
+elif git merge-base --is-ancestor $tag HEAD
+then
     log=$(git log $tag..HEAD --pretty=oneline)
+else # In our case tag is not in master so we just look for all commits up-to one that look like version.
+  log=$(git log `git rev-list --grep '^v[0-9\.]*$' HEAD --max-count 1`..HEAD --pretty=oneline)
 fi
 
+# Debug print
 echo $log
 
 # get commit logs and determine home to bump the version
